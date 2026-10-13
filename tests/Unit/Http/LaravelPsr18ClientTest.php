@@ -346,7 +346,7 @@ final class LaravelPsr18ClientTest extends TestCase
     {
         // Without trace arguments: this test is about the request property, and recorded arguments would hold the
         // whole test case and application, which print_r() would dump for minutes.
-        $this->ignoreArgs = (string) ini_get('zend.exception_ignore_args');
+        $this->ignoreArgs = (string) \ini_get('zend.exception_ignore_args');
         ini_set('zend.exception_ignore_args', '1');
         $request = $this->psr17->createRequest('GET', self::URL)->withHeader('Authorization', 'Bearer ' . self::API_KEY);
         $exception = new NetworkException('Timed out', $request);

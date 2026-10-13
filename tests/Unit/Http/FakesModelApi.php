@@ -32,7 +32,7 @@ trait FakesModelApi
      */
     protected function setUp(): void
     {
-        $this->ignoreArgs = (string) ini_get('zend.exception_ignore_args');
+        $this->ignoreArgs = (string) \ini_get('zend.exception_ignore_args');
         parent::setUp();
     }
 
