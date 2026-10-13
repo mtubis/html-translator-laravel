@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-13
+
+First release: translate HTML with the configured providers and profiles through the `HtmlTranslation` facade or
+`Contracts\TranslatesHtml`, from Artisan, and fake it in application tests. Built on `mtubis/html-translator` ^0.4;
+decisions in [ADR-0001–0008](docs/adr/).
+
 ### Added
 - Project skeleton: architecture, ADRs 0001–0008, configuration specification, service provider that merges and publishes the configuration.
 - Configuration validation (ADR-0007): profiles, options and `html.*` are checked when built; errors are an `InvalidConfigurationException` naming the full key (`html-translator.profiles.docs.term_policy: expected one of …`), suggest the closest key or value for typos and never quote secrets.
@@ -16,3 +22,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `php artisan html-translator:translate page.html --to=de --to=fr` (file or `-` for STDIN; `--from`, `--provider`, `--profile`, `--fallback`, `--output` with `{locale}`): HTML to STDOUT or files, progress and a summary per locale on STDERR, exit code 1 when a result is incomplete.
 - `php artisan html-translator:check [--provider=…] [--ping]`: lists every configuration problem of the settings, providers, profiles and options in one run, without secrets.
 - An "Html Translator" section in `php artisan about`: versions, default provider, driver, model, cache store and log channel.
+- README with tested examples (every runnable snippet runs in the test suite), Laravel Boost guidelines and integration tests against the real APIs (`composer test:integration`).
+
+[Unreleased]: https://github.com/mtubis/html-translator-laravel/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/mtubis/html-translator-laravel/releases/tag/v0.1.0

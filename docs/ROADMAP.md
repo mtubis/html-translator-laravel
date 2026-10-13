@@ -3,7 +3,7 @@
 Each milestone is a GitHub milestone; each bullet is one issue = one Claude Code session = one PR.
 Issue bodies are drafted in `docs/issues/<milestone>/` and created with `scripts/create-issues.sh`.
 
-## Laravel 0.1 — configured translation from config, facade and Artisan
+## Laravel 0.1 — configured translation from config, facade and Artisan (v0.1.0)
 Goal: `composer require`, set two env vars, `HtmlTranslation::translate($html, 'de')` works; tests use `HtmlTranslation::fake()`.
 
 0. Bootstrap tooling and Testbench workbench, `composer check` green

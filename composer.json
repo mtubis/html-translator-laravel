@@ -1,6 +1,6 @@
 {
     "name": "mtubis/html-translator-laravel",
-    "description": "Laravel integration for mtubis/html-translator: translate HTML with LLMs (OpenAI, Anthropic, Gemini, Ollama, …) while preserving markup — config, facade, Artisan, cache and queues.",
+    "description": "Laravel integration for mtubis/html-translator: translate HTML with LLMs (OpenAI, Anthropic, Gemini, Ollama, …) while preserving markup — config, facade, Artisan, cache, logging and a test fake.",
     "type": "library",
     "license": "MIT",
     "keywords": ["laravel", "html", "translation", "i18n", "l10n", "llm", "openai", "anthropic", "ollama", "ai", "localization"],
