@@ -3,7 +3,7 @@
     "description": "Laravel integration for mtubis/html-translator: translate HTML with LLMs (OpenAI, Anthropic, Gemini, Ollama, …) while preserving markup — config, facade, Artisan, cache, logging and a test fake.",
     "type": "library",
     "license": "MIT",
-    "keywords": ["laravel", "html", "translation", "i18n", "l10n", "llm", "openai", "anthropic", "ollama", "ai", "localization"],
+    "keywords": ["laravel", "html", "translation", "i18n", "l10n", "llm", "openai", "anthropic", "ollama", "ai", "localization", "gemini", "laravel-package", "html-translation"],
     "authors": [
         {
             "name": "Magdalena Tubis",
@@ -89,7 +89,5 @@
         "check": "Run everything CI runs: Pint (test), Rector dry-run, PHPStan and tests.",
         "serve": "Start the Testbench workbench application for manual checks.",
         "test:integration": "Run the tests against real model APIs (needs keys in .env, see .env.dist)."
-    },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+    }
 }
