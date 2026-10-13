@@ -16,6 +16,7 @@ use HtmlTranslator\Laravel\HtmlTranslationManager;
 use HtmlTranslator\Laravel\HtmlTranslatorServiceProvider;
 use HtmlTranslator\Laravel\Http\LaravelPsr18Client;
 use HtmlTranslator\Laravel\PendingTranslation;
+use HtmlTranslator\Laravel\Testing\HtmlTranslationFake;
 use HtmlTranslator\Laravel\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -55,8 +56,13 @@ final class HtmlTranslationFacadeTest extends TestCase
     {
         $documented = $this->documentedMethods();
         $expected = [];
-        foreach (new ReflectionClass(TranslatesHtml::class)->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            if ('translatePending' === $method->getName()) {
+        // The contract (manager and fake) and the fake's testing helpers, which the facade forwards after fake().
+        $methods = [
+            ...new ReflectionClass(TranslatesHtml::class)->getMethods(ReflectionMethod::IS_PUBLIC),
+            ...new ReflectionClass(HtmlTranslationFake::class)->getMethods(ReflectionMethod::IS_PUBLIC),
+        ];
+        foreach ($methods as $method) {
+            if (\in_array($method->getName(), ['translatePending', '__construct'], true)) {
                 continue;
             }
 
@@ -111,7 +117,9 @@ final class HtmlTranslationFacadeTest extends TestCase
             $parameters[] = self::normalize(self::type($parameter->getType()) . ' $' . $parameter->getName() . $default);
         }
 
-        return self::normalize(self::type($method->getReturnType())) . '(' . implode(', ', $parameters) . ')';
+        $return = self::type($method->getReturnType());
+
+        return self::normalize('self' === $return ? $method->getDeclaringClass()->getName() : $return) . '(' . implode(', ', $parameters) . ')';
     }
 
     private static function type(?ReflectionType $type): string
@@ -131,7 +139,8 @@ final class HtmlTranslationFacadeTest extends TestCase
         $words = explode(' ', trim($signature), 2);
         $types = $words[0];
         $name = $words[1] ?? '';
-        $types = str_replace('?', 'null|', ltrim($types, '\\'));
+        // Generic PHPDoc types are their native type: "list<RecordedTranslation>" is "array".
+        $types = str_replace('?', 'null|', (string) preg_replace(['/<[^>]*>/', '/\blist\b/'], ['', 'array'], ltrim($types, '\\')));
         // Short class names: the docblock uses imported names, reflection fully qualified ones.
         $parts = array_unique(array_map(static fn(string $part): string => substr($part, (int) strrpos('\\' . $part, '\\')), explode('|', $types)));
         sort($parts);
