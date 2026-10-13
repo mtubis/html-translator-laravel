@@ -17,21 +17,21 @@ final class HtmlTranslatorServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        $this->mergeConfigFrom(self::configPath(), self::CONFIG_KEY);
+        $this->mergeConfigFrom($this->configPath(), self::CONFIG_KEY);
     }
 
     public function boot(): void
     {
         if ($this->app->runningInConsole()) {
             $this->publishes(
-                [self::configPath() => $this->app->configPath(self::CONFIG_KEY . '.php')],
+                [$this->configPath() => $this->app->configPath(self::CONFIG_KEY . '.php')],
                 self::CONFIG_KEY . '-config',
             );
         }
     }
 
-    private static function configPath(): string
+    private function configPath(): string
     {
-        return \dirname(__DIR__) . '/config/' . self::CONFIG_KEY . '.php';
+        return __DIR__ . '/../config/' . self::CONFIG_KEY . '.php';
     }
 }

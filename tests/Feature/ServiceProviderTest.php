@@ -28,6 +28,6 @@ final class ServiceProviderTest extends TestCase
 
         self::assertCount(1, $paths);
         self::assertStringEndsWith('config/html-translator.php', (string) array_key_first($paths));
-        self::assertSame($this->app->configPath('html-translator.php'), array_values($paths)[0]);
+        self::assertSame(config_path('html-translator.php'), array_values($paths)[0]);
     }
 }

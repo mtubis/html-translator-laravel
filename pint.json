@@ -1,7 +1,7 @@
 {
     "preset": "per",
     "cache-file": "var/.pint.cache",
-    "exclude": ["workbench/bootstrap/cache", "workbench/storage"],
+    "exclude": ["var", "workbench/bootstrap/cache", "workbench/storage"],
     "rules": {
         "declare_strict_types": true,
         "final_class": true,
