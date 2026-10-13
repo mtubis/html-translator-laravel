@@ -17,11 +17,26 @@
     },
     "require": {
         "php": "^8.4",
+        "guzzlehttp/psr7": "^2.9 || ^3.0",
+        "illuminate/cache": "^13.0",
+        "illuminate/console": "^13.0",
+        "illuminate/contracts": "^13.0",
+        "illuminate/http": "^13.0",
+        "illuminate/log": "^13.0",
         "illuminate/support": "^13.0",
-        "mtubis/html-translator": "^0.4"
+        "mtubis/html-translator": "^0.4",
+        "symfony/cache": "^7.4 || ^8.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^11.3"
+        "infection/infection": "^0.35.6",
+        "larastan/larastan": "^3.13",
+        "laravel/pint": "^1.32",
+        "orchestra/testbench": "^11.3",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-phpunit": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.1",
+        "phpunit/phpunit": "^13.4",
+        "rector/rector": "^2.7"
     },
     "autoload": {
         "psr-4": {
@@ -30,8 +45,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "HtmlTranslator\\Laravel\\Tests\\": "tests/",
-            "Workbench\\App\\": "workbench/app/"
+            "HtmlTranslator\\Laravel\\Tests\\": "tests/"
         }
     },
     "extra": {
