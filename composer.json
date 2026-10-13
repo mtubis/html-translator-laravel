@@ -1,0 +1,81 @@
+{
+    "name": "mtubis/html-translator-laravel",
+    "description": "Laravel integration for mtubis/html-translator: translate HTML with LLMs (OpenAI, Anthropic, Gemini, Ollama, …) while preserving markup — config, facade, Artisan, cache and queues.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "html", "translation", "i18n", "l10n", "llm", "openai", "anthropic", "ollama", "ai", "localization"],
+    "authors": [
+        {
+            "name": "Magdalena Tubis",
+            "homepage": "https://github.com/mtubis",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/mtubis/html-translator-laravel/issues",
+        "source": "https://github.com/mtubis/html-translator-laravel"
+    },
+    "require": {
+        "php": "^8.4",
+        "illuminate/support": "^13.0",
+        "mtubis/html-translator": "^0.4"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^11.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "HtmlTranslator\\Laravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "HtmlTranslator\\Laravel\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "HtmlTranslator\\Laravel\\HtmlTranslatorServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "infection/extension-installer": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:unit": "phpunit --testsuite unit",
+        "test:feature": "phpunit --testsuite feature",
+        "test:integration": "phpunit --group integration",
+        "stan": "phpstan analyse --no-progress --memory-limit=1G",
+        "pint": "pint --test",
+        "lint": "pint",
+        "rector": "rector process --dry-run",
+        "rector:fix": "rector process",
+        "infection": "infection --threads=max --show-mutations",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/testbench workbench:build --ansi",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "check": [
+            "@pint",
+            "@rector",
+            "@stan",
+            "@test"
+        ]
+    },
+    "scripts-descriptions": {
+        "check": "Run everything CI runs: Pint (test), Rector dry-run, PHPStan and tests.",
+        "serve": "Start the Testbench workbench application for manual checks.",
+        "test:integration": "Run the tests against real model APIs (needs keys in .env, see .env.dist)."
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

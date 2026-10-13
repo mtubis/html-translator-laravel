@@ -1,0 +1,19 @@
+laravel: '@testbench'
+
+providers:
+  - HtmlTranslator\Laravel\HtmlTranslatorServiceProvider
+
+env:
+  - HTML_TRANSLATOR_PROVIDER=pseudo
+  - CACHE_STORE=array
+
+workbench:
+  start: '/'
+  install: true
+  discovers:
+    web: true
+    commands: true
+  build:
+    - create-sqlite-db
+  assets: []
+  sync: []
