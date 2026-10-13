@@ -1,6 +1,6 @@
 # 0004. Laravel's HTTP client as the PSR-18 client
 
-- Status: proposed
+- Status: accepted (2026-10-13, after the spike in #3)
 - Date: 2026-10-13
 
 ## Context
@@ -17,6 +17,30 @@ Implement `Http\LaravelPsr18Client` (PSR-18 over `Illuminate\Http\Client\Factory
 
 The first issue implementing this is a spike: if the adapter cannot meet these rules cleanly (e.g. streaming bodies, exception chains), fall back to option 1 and supersede this ADR.
 
+## Spike result (#3)
+The rules are met without workarounds:
+- `PendingRequest::withRequestMiddleware()` runs before Laravel's before-sending callbacks, recorder and fake stubs
+  (but after global request middleware and Guzzle's default middleware). A
+  middleware that returns the core's PSR request replaces the request Laravel built from its options, so the request is
+  sent, recorded (`Http::assertSent()`) and announced (`RequestSending`) exactly as the core built it. Timeouts stay in
+  the Guzzle options; `withoutRedirecting()` keeps credential headers from being re-sent to another host;
+  `http_errors` is forced off, so an application's `Http::globalOptions()` cannot turn statuses into exceptions.
+- `ConnectionException`, Laravel's `RequestException` (a transfer that failed after the headers) and Guzzle exceptions
+  without a request become `Exceptions\NetworkException`: the message has the URI's user info and query, non-public
+  header values and query values removed; there is no previous exception; the request is kept only for `getRequest()`,
+  as a `SensitiveParameterValue`.
+- The core's `ChatModelContractTestCase` passes for the OpenAI-compatible and Anthropic adapters on top of the client
+  and `Http::fake()`.
+
 ## Consequences
+- What an application adds to every Laravel request (`Http::globalRequestMiddleware()`, `globalOptions()` headers,
+  query or auth) is not sent with model calls: the request goes out as the core built it. Transport options (proxy,
+  TLS verification, certificates) still apply. A test pins this.
+- Laravel's HTTP events, recorded requests and therefore Telescope see the request with its credentials (that is
+  their purpose). Telescope hides only `authorization` by default: applications should add
+  `Telescope::hideRequestHeaders(['x-api-key', 'api-key', ...])` and never put keys in query strings. To be repeated
+  in the README.
+- `Http::preventStrayRequests()` throws `StrayRequestException` with the full URI; it is not caught (it is a test
+  setup error) and the core adapters send keys in headers, not in the URI.
 - `Http::fake()` works for the whole chain; the core's chat-model contract tests can run on top of the adapter.
 - One more class to maintain, with a security-relevant exception path that needs explicit tests.
