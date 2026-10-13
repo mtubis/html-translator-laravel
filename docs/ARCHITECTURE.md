@@ -127,7 +127,7 @@ src/
   Http/                        LaravelPsr18Client
   Console/                     TranslateCommand
   Testing/                     HtmlTranslationFake, RecordedTranslation
-  Exceptions/                  InvalidConfigurationException
+  Exceptions/                  InvalidConfigurationException, NetworkException
   (0.2) Jobs/, Events/, Eloquent/
 resources/boost/guidelines/core.blade.php   AI guidelines shipped to applications using Laravel Boost
 tests/

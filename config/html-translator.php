@@ -85,7 +85,9 @@ return [
     |--------------------------------------------------------------------------
     | Requests go through Laravel's HTTP client (Http::fake() works in your tests). Translation batches can take a
     | while, especially with higher reasoning effort: keep the timeout generous. "retry" maps to the core RetryPolicy;
-    | do not configure retries on the HTTP client as well.
+    | do not configure retries on the HTTP client as well. Requests are sent exactly as built: Http::globalOptions()
+    | headers and global request middleware do not apply to them. Telescope records them with their headers; hide
+    | "x-api-key" and "api-key" there (Telescope::hideRequestHeaders()).
     */
     'http' => [
         'timeout' => (int) env('HTML_TRANSLATOR_HTTP_TIMEOUT', 180),
