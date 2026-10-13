@@ -12,8 +12,7 @@ workbench:
   install: true
   discovers:
     web: true
-    commands: true
-  build:
-    - create-sqlite-db
+    commands: false
+  build: []
   assets: []
   sync: []
