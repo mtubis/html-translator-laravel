@@ -57,6 +57,10 @@ $result = HtmlTranslation::provider('anthropic')
 HtmlTranslation::profile(TranslationProfile::legal()->withFormality(Formality::Formal)) // … or a core profile object
     ->translate($html, 'fr');
 
+HtmlTranslation::withOptions(new TranslationOptions(batchSize: 5)) // core options as they are, instead of config + overrides
+    ->provider('openai')
+    ->translate($html, 'de');
+
 HtmlTranslation::translator('ollama');                            // the underlying core HtmlTranslator
 ```
 

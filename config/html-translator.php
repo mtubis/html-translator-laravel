@@ -35,6 +35,7 @@ return [
     |   ollama, lm_studio  base_url              vllm  base_url, api_key
     |   openai             json_mode             anthropic  api_version, default_max_output_tokens, extra_headers
     |   openai_compatible  see the commented "together" example
+    |   pseudo             corrupt_every (break every n-th unit), corrupt_retries — to test fallbacks and issues
     |
     | Unknown keys are reported as errors, with a suggestion for typos.
     */

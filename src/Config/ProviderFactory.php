@@ -41,10 +41,15 @@ final readonly class ProviderFactory
         };
     }
 
+    /**
+     * The corruption options let applications test their fallback strategy and issue handling without a model.
+     */
     private function pseudo(#[SensitiveParameter] ConfigReader $reader): PseudoLocalizationProvider
     {
-        $reader->assertKnownKeys(['driver']);
+        $reader->assertKnownKeys(['driver', 'corrupt_every', 'corrupt_retries']);
+        $corruptEvery = $reader->nonNegativeInt('corrupt_every', 0);
+        $corruptRetries = $reader->bool('corrupt_retries', false);
 
-        return new PseudoLocalizationProvider();
+        return $reader->guardEntry(static fn(): PseudoLocalizationProvider => new PseudoLocalizationProvider($corruptEvery, $corruptRetries));
     }
 }

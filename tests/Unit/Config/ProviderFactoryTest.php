@@ -38,6 +38,23 @@ final class ProviderFactoryTest extends TestCase
     }
 
     #[Test]
+    public function it_passes_the_corruption_options_to_the_pseudo_provider(): void
+    {
+        self::assertEquals(
+            new PseudoLocalizationProvider(2, true),
+            self::factory()->fromArray('pseudo', ['driver' => 'pseudo', 'corrupt_every' => '2', 'corrupt_retries' => true]),
+        );
+    }
+
+    #[Test]
+    public function it_reports_invalid_corruption_options_under_the_entry(): void
+    {
+        $exception = $this->configurationError(static fn(): TranslationProviderInterface => self::factory()->fromArray('pseudo', ['driver' => 'pseudo', 'corrupt_retries' => true]));
+
+        self::assertSame('html-translator.providers.pseudo', $exception->key);
+    }
+
+    #[Test]
     public function it_wraps_a_chat_model_for_llm_drivers(): void
     {
         $provider = self::factory()->fromArray('openai', ['driver' => 'openai', 'api_key' => 'sk-test', 'model' => 'gpt-test']);
@@ -59,7 +76,8 @@ final class ProviderFactoryTest extends TestCase
         ];
         yield 'driver type' => [['driver' => 1], 'driver', 'expected one of openai, gemini, ollama, vllm, lm_studio, openai_compatible, anthropic, pseudo, laravel_ai, got 1'];
         yield 'planned driver' => [['driver' => 'laravel_ai'], 'driver', 'the "laravel_ai" driver is planned for version 0.3 and not available yet'];
-        yield 'pseudo option' => [['driver' => 'pseudo', 'model' => 'x'], 'model', 'unknown key; expected one of driver'];
+        yield 'pseudo option' => [['driver' => 'pseudo', 'model' => 'x'], 'model', 'unknown key; expected one of driver, corrupt_every, corrupt_retries'];
+        yield 'pseudo corruption interval' => [['driver' => 'pseudo', 'corrupt_every' => -1], 'corrupt_every', 'expected an integer >= 0, got -1'];
     }
 
     /**
