@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace HtmlTranslator\Laravel;
 
-use Closure;
 use HtmlTranslator\Domain\Locale;
-use HtmlTranslator\Exception\LogicException;
 use HtmlTranslator\FallbackStrategy;
 use HtmlTranslator\HtmlTranslator;
 use HtmlTranslator\Laravel\Config\ConfigReader;
@@ -112,12 +110,8 @@ final class HtmlTranslationManager implements TranslatesHtml
      */
     public function options(PendingTranslation $pending): TranslationOptions
     {
+        $pending->assertNoOverridesBesideCoreOptions();
         if ($pending->coreOptions instanceof TranslationOptions) {
-            if ($pending->sourceSet || null !== $pending->profile || $pending->fallback instanceof FallbackStrategy || null !== $pending->maxCorrectiveRetries
-                || null !== $pending->batchSize || null !== $pending->tokenBudget || $pending->onProgress instanceof Closure) {
-                throw new LogicException('withOptions() replaces the configured options and every override; set from(), profile(), fallback(), maxCorrectiveRetries(), batchSize(), tokenBudget() and onProgress() on the TranslationOptions instead.');
-            }
-
             return $pending->coreOptions;
         }
 

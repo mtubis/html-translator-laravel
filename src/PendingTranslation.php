@@ -6,6 +6,7 @@ namespace HtmlTranslator\Laravel;
 
 use Closure;
 use HtmlTranslator\Domain\Locale;
+use HtmlTranslator\Exception\LogicException;
 use HtmlTranslator\FallbackStrategy;
 use HtmlTranslator\Laravel\Contracts\TranslatesHtml;
 use HtmlTranslator\Profile\TranslationProfile;
@@ -134,6 +135,26 @@ final class PendingTranslation
         $pending->coreOptions = $options;
 
         return $pending;
+    }
+
+    /**
+     * withOptions() replaces every override, so combining them would silently drop one side; the manager and the fake
+     * both refuse it.
+     *
+     * @internal called by the manager and the fake
+     *
+     * @throws LogicException
+     */
+    public function assertNoOverridesBesideCoreOptions(): void
+    {
+        if (!$this->coreOptions instanceof TranslationOptions) {
+            return;
+        }
+
+        if ($this->sourceSet || null !== $this->profile || $this->fallback instanceof FallbackStrategy || null !== $this->maxCorrectiveRetries
+            || null !== $this->batchSize || null !== $this->tokenBudget || $this->onProgress instanceof Closure) {
+            throw new LogicException('withOptions() replaces the configured options and every override; set from(), profile(), fallback(), maxCorrectiveRetries(), batchSize(), tokenBudget() and onProgress() on the TranslationOptions instead.');
+        }
     }
 
     public function translate(string $html, Locale|string $target): TranslatedDocument

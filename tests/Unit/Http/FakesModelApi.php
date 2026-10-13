@@ -24,6 +24,24 @@ trait FakesModelApi
 {
     private ?Factory $http = null;
 
+    private string $ignoreArgs = '';
+
+    /**
+     * The core's contract enables zend.exception_ignore_args=0 in setUp() and never restores it; left on, later tests
+     * record whole object graphs (the application) in every exception trace.
+     */
+    protected function setUp(): void
+    {
+        $this->ignoreArgs = (string) \ini_get('zend.exception_ignore_args');
+        parent::setUp();
+    }
+
+    protected function tearDown(): void
+    {
+        ini_set('zend.exception_ignore_args', $this->ignoreArgs);
+        parent::tearDown();
+    }
+
     /**
      * @param Closure(ChatScenario): array<string, mixed> $successBody
      * @param Closure(ChatScenario): array<string, mixed> $errorBody

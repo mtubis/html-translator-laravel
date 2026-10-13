@@ -83,7 +83,8 @@ Rules:
 - Locales are accepted as strings or core `Locale` objects. Profiles as entry names or core `TranslationProfile`s.
 - Every exception thrown by the package implements the core's `HtmlTranslator\Exception\TranslatorException`, so one
   `catch` covers core and package. Configuration errors are `InvalidConfigurationException` and name the config key.
-- The facade root is `HtmlTranslationManager`; everything the facade does is also available by injecting it.
+- The facade resolves `Contracts\TranslatesHtml`: the manager, or the fake after `HtmlTranslation::fake()`. Inject the
+  contract to stay fakeable; code that type-hints `HtmlTranslationManager` always gets the real translator.
 
 ## 5. Components
 
