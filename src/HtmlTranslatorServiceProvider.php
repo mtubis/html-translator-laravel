@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace HtmlTranslator\Laravel;
 
+use Composer\InstalledVersions;
 use GuzzleHttp\Psr7\HttpFactory;
 use HtmlTranslator\Exception\LogicException;
 use HtmlTranslator\Laravel\Config\ChatModelFactory;
 use HtmlTranslator\Laravel\Config\ConfigReader;
 use HtmlTranslator\Laravel\Config\ProviderFactory;
+use HtmlTranslator\Laravel\Console\CheckCommand;
+use HtmlTranslator\Laravel\Console\TranslateCommand;
 use HtmlTranslator\Laravel\Contracts\TranslatesHtml;
 use HtmlTranslator\Laravel\Exceptions\InvalidConfigurationException;
 use HtmlTranslator\Laravel\Http\LaravelPsr18Client;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Http\Client\Factory as HttpClientFactory;
 use Illuminate\Log\LogManager;
 use Illuminate\Support\ServiceProvider;
@@ -90,12 +94,57 @@ final class HtmlTranslatorServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if ($this->app->runningInConsole()) {
-            $this->publishes(
-                [$this->configPath() => $this->app->configPath(self::CONFIG_KEY . '.php')],
-                self::CONFIG_KEY . '-config',
-            );
+        if (!$this->app->runningInConsole()) {
+            return;
         }
+
+        $this->publishes(
+            [$this->configPath() => $this->app->configPath(self::CONFIG_KEY . '.php')],
+            self::CONFIG_KEY . '-config',
+        );
+        $this->commands([TranslateCommand::class, CheckCommand::class]);
+
+        // AboutCommand ships with laravel/framework, not with the illuminate/* components this package requires.
+        if (class_exists(AboutCommand::class)) {
+            $app = $this->app;
+            // "Html", not "HTML": `about --json` snake-cases the name (html_translator, not h_t_m_l_translator).
+            AboutCommand::add('Html Translator', static fn(): array => self::about($app));
+        }
+    }
+
+    /**
+     * The `php artisan about` section: versions and names only, never keys. Configuration errors are reported by
+     * html-translator:check, not here.
+     *
+     * @internal for `php artisan about` and its tests
+     *
+     * @return array{'Version': string, 'Core version': string, 'Default provider': string, 'Driver': string, 'Model': string, 'Cache': string, 'Log channel': string}
+     */
+    public static function about(Container $app): array
+    {
+        $config = self::config($app);
+        $default = \is_string($config['default'] ?? null) ? $config['default'] : null;
+        $providers = \is_array($config['providers'] ?? null) ? $config['providers'] : [];
+        $entry = null === $default ? [] : $providers[$default] ?? [];
+        $entry = \is_array($entry) ? $entry : [];
+        $cache = \is_array($config['cache'] ?? null) ? $config['cache'] : [];
+        $channel = $config['log_channel'] ?? null;
+
+        return [
+            'Version' => self::version('mtubis/html-translator-laravel'),
+            'Core version' => self::version('mtubis/html-translator'),
+            'Default provider' => $default ?? 'not set',
+            'Driver' => \is_string($entry['driver'] ?? null) ? $entry['driver'] : 'not set',
+            'Model' => \is_string($entry['model'] ?? null) && '' !== $entry['model'] ? $entry['model'] : 'not set',
+            'Cache' => false === filter_var($cache['enabled'] ?? true, \FILTER_VALIDATE_BOOL)
+                ? 'disabled'
+                : (\is_string($cache['store'] ?? null) && '' !== $cache['store'] ? $cache['store'] : 'default store'),
+            'Log channel' => match (true) {
+                false === $channel => 'none',
+                \is_string($channel) && '' !== $channel => $channel,
+                default => 'default channel',
+            },
+        ];
     }
 
     /**
@@ -107,6 +156,11 @@ final class HtmlTranslatorServiceProvider extends ServiceProvider
         $http->assertKnownKeys(['timeout', 'connect_timeout', 'retry']);
 
         return $http;
+    }
+
+    private static function version(string $package): string
+    {
+        return InstalledVersions::isInstalled($package) ? InstalledVersions::getPrettyVersion($package) ?? 'unknown' : 'not installed';
     }
 
     private function cachePool(Container $app): ?CacheItemPoolInterface
