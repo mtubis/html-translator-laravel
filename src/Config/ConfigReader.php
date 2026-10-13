@@ -9,6 +9,7 @@ use Closure;
 use HtmlTranslator\Exception\InvalidArgumentException;
 use HtmlTranslator\Exception\LogicException;
 use HtmlTranslator\Laravel\Exceptions\InvalidConfigurationException;
+use SensitiveParameter;
 
 /**
  * Typed, validating access to one section of the package configuration (ADR-0007).
@@ -33,17 +34,18 @@ final readonly class ConfigReader
 
     private const int MAX_SUGGESTION_DISTANCE = 2;
 
-    // TODO(core): temporary copy of the core's @internal UntrustedText rules (ADR-0002); use the public helper once
-    // "Make quoting of untrusted text public API for integrations" (docs/core-feedback/) is released.
+    // TODO(core#87): temporary copy of the core's @internal UntrustedText rules (ADR-0002); use the public helper once
+    // mtubis/html-translator#87 is released.
     private const string UNSAFE = '/[\x{0000}-\x{001F}\x{007F}-\x{009F}\x{061C}\x{200E}\x{200F}\x{2028}-\x{202E}\x{2066}-\x{2069}]/u';
 
     private const array ESCAPES = ["\n" => '\n', "\r" => '\r', "\t" => '\t'];
 
     /**
-     * @param array<mixed> $values
+     * @param array<mixed> $values may hold secrets (API keys), hence sensitive
      * @param string $prefix full key of the section, e.g. "html-translator.options"
      */
     public function __construct(
+        #[SensitiveParameter]
         private array $values,
         private string $prefix,
     ) {}
@@ -271,6 +273,42 @@ final readonly class ConfigReader
     }
 
     /**
+     * A map of names to secret values (e.g. extra HTTP headers): names are quoted in messages, values never are.
+     *
+     * @return array<string, string> empty when not set
+     */
+    public function secretMap(string $key): array
+    {
+        $value = $this->values[$key] ?? null;
+        if (null === $value) {
+            return [];
+        }
+
+        if (!\is_array($value)) {
+            throw InvalidConfigurationException::forKey($this->key($key), 'expected a map of names to strings, got ' . get_debug_type($value));
+        }
+
+        if ([] !== $value && array_is_list($value)) {
+            throw InvalidConfigurationException::forKey($this->key($key), 'expected a map of names to strings, got a list');
+        }
+
+        $map = [];
+        foreach ($value as $name => $item) {
+            $name = (string) $name;
+            if (!\is_string($item)) {
+                throw InvalidConfigurationException::forKey(
+                    $this->key($key),
+                    \sprintf('the value for "%s" must be a string, got %s', $this->sanitize($name), get_debug_type($item)),
+                );
+            }
+
+            $map[$name] = $item;
+        }
+
+        return $map;
+    }
+
+    /**
      * Runs a core call that applies the value of $key and reports the core's argument errors under that key. The core
      * message and the core exception (as previous) are kept: do not guard a call that receives a secret unless the
      * core is known to leave it out of its messages.
@@ -281,12 +319,33 @@ final readonly class ConfigReader
      *
      * @return T
      */
-    public function guard(string $key, Closure $build): mixed
+    public function guard(string $key, #[SensitiveParameter] Closure $build): mixed
     {
         try {
             return $build();
         } catch (InvalidArgumentException $exception) {
             throw InvalidConfigurationException::forKey($this->key($key), $exception->getMessage(), $exception);
+        }
+    }
+
+    /**
+     * Like guard(), for a core call that takes several values of this section (e.g. a config constructor that decides
+     * itself which parameter is wrong): the error is reported under the section's key. The same caveat applies: the
+     * core message and exception are kept, which is safe for the core's chat model configs only because their
+     * validation messages never quote the API key or header values (tested in ChatModelFactoryTest).
+     *
+     * @template T
+     *
+     * @param Closure(): T $build
+     *
+     * @return T
+     */
+    public function guardEntry(#[SensitiveParameter] Closure $build): mixed
+    {
+        try {
+            return $build();
+        } catch (InvalidArgumentException $exception) {
+            throw InvalidConfigurationException::forKey($this->prefix, $exception->getMessage(), $exception);
         }
     }
 

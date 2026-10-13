@@ -94,7 +94,8 @@ config/html-translator.php
    │  provider()/profile()/from()…  ──► PendingTranslation ──► translate()
    │
    ├── Config\ProviderFactory     provider entry  → TranslationProviderInterface (LlmTranslationProvider + chat model, or Pseudo)
-   │     └── Config\ChatModelFactory   driver → OpenAiCompatibleConfig / AnthropicConfig → chat model
+   │     └── Config\ChatModelFactory   driver → OpenAiCompatibleConfig / AnthropicConfig → chat model;
+   │                                   static retrier(): http.retry → core Retrier
    ├── Config\ProfileFactory      profile entry   → TranslationProfile
    ├── Config\OptionsFactory      options + overrides → TranslationOptions
    ├── Config\HtmlRulesFactory    html.*          → SkipRules, TranslatableAttributes

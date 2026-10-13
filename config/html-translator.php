@@ -30,7 +30,13 @@ return [
     |   laravel_ai                              → a provider configured in config/ai.php (laravel/ai, planned)
     |   pseudo                                  → PseudoLocalizationProvider, no network (local development, tests)
     |
-    | Several entries may use the same driver, e.g. a cheap and a strong model.
+    | Several entries may use the same driver, e.g. a cheap and a strong model. Optional keys per driver:
+    |
+    |   ollama, lm_studio  base_url              vllm  base_url, api_key
+    |   openai             json_mode             anthropic  api_version, default_max_output_tokens, extra_headers
+    |   openai_compatible  see the commented "together" example
+    |
+    | Unknown keys are reported as errors, with a suggestion for typos.
     */
     'providers' => [
 
@@ -49,6 +55,7 @@ return [
             'base_url' => env('ANTHROPIC_BASE_URL'),              // null = https://api.anthropic.com/v1
             'refusal_fallbacks' => false,
             'betas' => [],
+            'extra_headers' => [], // e.g. a gateway token; treated as secret
         ],
 
         'gemini' => [
@@ -87,7 +94,7 @@ return [
     | while, especially with higher reasoning effort: keep the timeout generous. "retry" maps to the core RetryPolicy;
     | do not configure retries on the HTTP client as well. Requests are sent exactly as built: Http::globalOptions()
     | headers and global request middleware do not apply to them. Telescope records them with their headers; hide
-    | "x-api-key" and "api-key" there (Telescope::hideRequestHeaders()).
+    | "x-api-key", "api-key" and the names of your extra_headers there (Telescope::hideRequestHeaders()).
     */
     'http' => [
         'timeout' => (int) env('HTML_TRANSLATOR_HTTP_TIMEOUT', 180),

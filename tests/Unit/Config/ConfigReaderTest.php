@@ -510,6 +510,55 @@ final class ConfigReaderTest extends TestCase
     }
 
     #[Test]
+    public function it_reads_a_secret_map(): void
+    {
+        self::assertSame(['X-Token' => self::SECRET, '2024' => ''], self::reader(['h' => ['X-Token' => self::SECRET, '2024' => '']])->secretMap('h'));
+        self::assertSame([], self::reader(['h' => []])->secretMap('h'));
+        self::assertSame([], self::reader(['h' => null])->secretMap('h'));
+        self::assertSame([], self::reader([])->secretMap('h'));
+    }
+
+    /**
+     * @return iterable<string, array{mixed, string}>
+     */
+    public static function invalidSecretMaps(): iterable
+    {
+        yield 'string' => [self::SECRET, 'expected a map of names to strings, got string'];
+        yield 'list' => [[self::SECRET], 'expected a map of names to strings, got a list'];
+        yield 'int value' => [['X-Token' => 12345678], 'the value for "X-Token" must be a string, got int'];
+        yield 'array value' => [['X-Token' => [self::SECRET]], 'the value for "X-Token" must be a string, got array'];
+    }
+
+    #[Test]
+    #[DataProvider('invalidSecretMaps')]
+    public function it_names_only_the_types_in_an_invalid_secret_map(mixed $value, string $problem): void
+    {
+        $exception = $this->configurationError(static fn(): array => self::reader(['h' => $value])->secretMap('h'));
+
+        self::assertSame('html-translator.section.h: ' . $problem, $exception->getMessage());
+        self::assertStringNotContainsString(self::SECRET, $exception->getMessage());
+        self::assertStringNotContainsString('12345678', $exception->getMessage());
+    }
+
+    #[Test]
+    public function it_reports_core_errors_of_a_whole_entry_under_its_key(): void
+    {
+        $core = new InvalidArgumentException('An Anthropic configuration needs a model.');
+
+        $exception = $this->configurationError(static fn(): mixed => self::reader([])->guardEntry(static fn(): never => throw $core));
+
+        self::assertSame('html-translator.section: An Anthropic configuration needs a model.', $exception->getMessage());
+        self::assertSame('html-translator.section', $exception->key);
+        self::assertSame($core, $exception->getPrevious());
+    }
+
+    #[Test]
+    public function it_returns_the_result_of_a_guarded_entry(): void
+    {
+        self::assertSame('ok', self::reader([])->guardEntry(static fn(): string => 'ok'));
+    }
+
+    #[Test]
     public function it_renders_untrusted_strings_on_one_line(): void
     {
         $this->expectExceptionMessage('got "a\\nb\\u{001B}[31mc\\u{202E}d\\te"');
