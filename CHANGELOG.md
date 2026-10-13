@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-10-13
+## [0.1.0] - 2026-10-14
 
 First release: translate HTML with the configured providers and profiles through the `HtmlTranslation` facade or
 `Contracts\TranslatesHtml`, from Artisan, and fake it in application tests. Built on `mtubis/html-translator` ^0.4;
