@@ -86,8 +86,9 @@ final class HtmlTranslationFacadeTest extends TestCase
             new ReflectionClass(TranslatesHtml::class)->getMethods(ReflectionMethod::IS_PUBLIC),
         );
 
-        // options() is @internal (tests and the fake); the constructor and __debugInfo() are not part of the facade.
-        self::assertSame([], array_values(array_diff($manager, $contract, ['__construct', '__debugInfo', 'options'])));
+        // options(), namedProfile(), providerNames() and profileNames() are @internal (tests, the fake, html-translator:check); the
+        // constructor and __debugInfo() are not part of the facade.
+        self::assertSame([], array_values(array_diff($manager, $contract, ['__construct', '__debugInfo', 'options', 'namedProfile', 'defaultProvider', 'providerNames', 'profileNames'])));
     }
 
     /**

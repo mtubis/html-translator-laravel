@@ -54,7 +54,7 @@ final class HtmlTranslationManager implements TranslatesHtml
 
     public function translator(?string $provider = null): HtmlTranslator
     {
-        $name = $provider ?? $this->reader()->string('default');
+        $name = $provider ?? $this->defaultProvider();
 
         return $this->translators[$name] ??= $this->build($name);
     }
@@ -133,6 +133,49 @@ final class HtmlTranslationManager implements TranslatesHtml
     }
 
     /**
+     * The `default` provider entry, which must be defined.
+     *
+     * @internal for html-translator:check
+     */
+    public function defaultProvider(): string
+    {
+        $default = $this->reader()->string('default');
+        $names = $this->providerNames();
+        if (!\in_array($default, $names, true)) {
+            throw InvalidConfigurationException::forKey(
+                self::PREFIX . '.default',
+                \sprintf('"%s" is not a provider entry; defined: %s', $default, implode(', ', $names)),
+            );
+        }
+
+        return $default;
+    }
+
+    /**
+     * The configured provider entries.
+     *
+     * @internal for html-translator:check
+     *
+     * @return list<string>
+     */
+    public function providerNames(): array
+    {
+        return array_map(strval(...), array_keys($this->section('providers')));
+    }
+
+    /**
+     * The configured profile entries.
+     *
+     * @internal for html-translator:check
+     *
+     * @return list<string>
+     */
+    public function profileNames(): array
+    {
+        return array_map(strval(...), array_keys($this->section('profiles')));
+    }
+
+    /**
      * What dd(), dump(), var_dump() and print_r() show: names, never the configuration's values.
      *
      * @return array<string, mixed>
@@ -163,7 +206,12 @@ final class HtmlTranslationManager implements TranslatesHtml
         );
     }
 
-    private function namedProfile(?string $name): TranslationProfile
+    /**
+     * A profile entry (null: the default profile).
+     *
+     * @internal for html-translator:check
+     */
+    public function namedProfile(?string $name): TranslationProfile
     {
         $name ??= $this->reader()->string('default_profile', 'default');
 

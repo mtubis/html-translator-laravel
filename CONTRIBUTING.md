@@ -23,8 +23,12 @@ then `composer require mtubis/html-translator:"*@dev"`.
 
 ## Integration tests
 
-Real API calls are in the `integration` group and are not run by default. Copy `.env.dist` to `.env`, add keys, then:
+Real API calls are in the `integration` group and are not run by default (they cost a few tokens). Copy `.env.dist`
+to `.env`, add keys and models, load them into the environment and run:
 
 ```bash
+set -a; . ./.env; set +a
 composer test:integration
 ```
+
+A driver whose variables are missing is skipped.
