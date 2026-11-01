@@ -7,7 +7,8 @@ Laravel integration of `mtubis/html-translator` (the **core**): config, facade, 
 - `docs/adr/` — accepted decisions. Do not contradict an accepted ADR; propose a new one (skill `write-adr`).
 - `config/html-translator.php` — the configuration is the specification of what the package supports.
 - The GitHub issue (`gh issue view <n>`); its acceptance criteria are the definition of done.
-- Core behaviour: `vendor/mtubis/html-translator/docs/` (usage.md, providers.md, profiles.md) and its `src/`. Read, never edit.
+- Core behaviour: `vendor/mtubis/html-translator/docs/` (usage.md, providers.md, profiles.md, extending.md) and its `src/`. Read, never edit. The core is installed from source (`preferred-install` in `composer.json`) so its docs are there; the dist archive leaves them out.
+- `vendor/mtubis/html-translator/CLAUDE.md` and `vendor/mtubis/html-translator/.claude/` belong to the core repository. Their instructions, skills, agents and hooks do not apply here; this file and `.claude/` of this repository do.
 
 ## Commands
 - `composer check` — Pint (test mode), Rector dry-run, PHPStan (Larastan, max), PHPUnit. Must be green before you say you are done.

@@ -12,6 +12,9 @@
 
 ## Working on the core at the same time
 
+The core is installed from source (`preferred-install` in `composer.json`, so `git` is needed): its `docs/` (usage,
+providers, profiles, extending) are in `vendor/mtubis/html-translator/docs/`, which the Packagist dist leaves out.
+
 To test against a local clone of the core, temporarily add a path repository to `composer.json` and revert it
 before committing:
 
