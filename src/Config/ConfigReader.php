@@ -8,6 +8,7 @@ use BackedEnum;
 use Closure;
 use HtmlTranslator\Exception\InvalidArgumentException;
 use HtmlTranslator\Exception\LogicException;
+use HtmlTranslator\Exception\UntrustedText;
 use HtmlTranslator\Laravel\Exceptions\InvalidConfigurationException;
 use SensitiveParameter;
 
@@ -33,12 +34,6 @@ final readonly class ConfigReader
     private const int MAX_QUOTED_LENGTH = 50;
 
     private const int MAX_SUGGESTION_DISTANCE = 2;
-
-    // TODO(core#87): temporary copy of the core's @internal UntrustedText rules (ADR-0002); use the public helper once
-    // mtubis/html-translator#87 is released.
-    private const string UNSAFE = '/[\x{0000}-\x{001F}\x{007F}-\x{009F}\x{061C}\x{200E}\x{200F}\x{2028}-\x{202E}\x{2066}-\x{2069}]/u';
-
-    private const array ESCAPES = ["\n" => '\n', "\r" => '\r', "\t" => '\t'];
 
     /**
      * @param array<mixed> $values may hold secrets (API keys), hence sensitive
@@ -419,21 +414,6 @@ final readonly class ConfigReader
 
     private function sanitize(string $text): string
     {
-        if (!mb_check_encoding($text, 'UTF-8')) {
-            // U+FFFD for each invalid sequence; mb_scrub() would depend on the global mb_substitute_character().
-            $decoded = json_decode(json_encode($text, \JSON_INVALID_UTF8_SUBSTITUTE | \JSON_THROW_ON_ERROR), flags: \JSON_THROW_ON_ERROR);
-            $text = \is_string($decoded) ? $decoded : '';
-        }
-
-        // Cut first, so an escape sequence is never cut in half.
-        if (mb_strlen($text) > self::MAX_QUOTED_LENGTH) {
-            $text = mb_substr($text, 0, self::MAX_QUOTED_LENGTH - 1) . '…';
-        }
-
-        return preg_replace_callback(
-            self::UNSAFE,
-            static fn(array $match): string => self::ESCAPES[$match[0]] ?? \sprintf('\u{%04X}', mb_ord($match[0])),
-            $text,
-        ) ?? $text;
+        return UntrustedText::quote($text, self::MAX_QUOTED_LENGTH);
     }
 }
