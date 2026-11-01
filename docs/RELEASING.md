@@ -11,8 +11,9 @@ public API (ARCHITECTURE §4), and the CHANGELOG says how. Releases are cut from
 3. **CHANGELOG**: move the entries of `[Unreleased]` into a new `## [X.Y.Z] - YYYY-MM-DD` section (the tag date), with
    a one-line summary and links to the ADRs of new decisions. Update the link references at the bottom: `[Unreleased]`
    compares `vX.Y.Z...HEAD`, `[X.Y.Z]` points to the release tag.
-4. **Version constraints**: the core constraint in `composer.json` follows the core's current minor (ADR-0002), and the
-   README's `composer require mtubis/html-translator-laravel` line needs no constraint while 0.x.
+4. **Version constraints**: the core constraint in `composer.json` is `^1.0` (ADR-0002); raise its lower bound (e.g.
+   `^1.1`) only when the release uses a feature of that core minor. The README's
+   `composer require mtubis/html-translator-laravel` line needs no constraint while 0.x.
 5. **Roadmap**: mark the milestone as done in [ROADMAP](ROADMAP.md) and close the GitHub milestone.
 6. **Commit and merge** these changes (`docs: release X.Y.Z`) through a pull request.
 7. **Tag and publish** (maintainer only): tag the merge commit on `main` with `vX.Y.Z`, push the tag, create the GitHub

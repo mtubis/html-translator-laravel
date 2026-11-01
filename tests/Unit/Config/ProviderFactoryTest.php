@@ -75,7 +75,7 @@ final class ProviderFactoryTest extends TestCase
             'expected one of openai, gemini, ollama, vllm, lm_studio, openai_compatible, anthropic, pseudo, laravel_ai, got "openia"; did you mean "openai"?',
         ];
         yield 'driver type' => [['driver' => 1], 'driver', 'expected one of openai, gemini, ollama, vllm, lm_studio, openai_compatible, anthropic, pseudo, laravel_ai, got 1'];
-        yield 'planned driver' => [['driver' => 'laravel_ai'], 'driver', 'the "laravel_ai" driver is planned for version 0.3 and not available yet'];
+        yield 'planned driver' => [['driver' => 'laravel_ai'], 'driver', 'the "laravel_ai" driver is planned for version 0.4 and not available yet'];
         yield 'pseudo option' => [['driver' => 'pseudo', 'model' => 'x'], 'model', 'unknown key; expected one of driver, corrupt_every, corrupt_retries'];
         yield 'pseudo corruption interval' => [['driver' => 'pseudo', 'corrupt_every' => -1], 'corrupt_every', 'expected an integer >= 0, got -1'];
     }

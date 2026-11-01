@@ -18,7 +18,7 @@ use SensitiveParameter;
  */
 final readonly class ProviderFactory
 {
-    /** Every driver the configuration may name; "laravel_ai" is reserved for version 0.3. */
+    /** Every driver the configuration may name; "laravel_ai" is reserved for version 0.4. */
     public const array DRIVERS = [...ChatModelFactory::DRIVERS, 'pseudo', 'laravel_ai'];
 
     private const string PREFIX = 'html-translator.providers.';
@@ -36,7 +36,7 @@ final readonly class ProviderFactory
 
         return match ($reader->oneOf('driver', self::DRIVERS)) {
             'pseudo' => $this->pseudo($reader),
-            'laravel_ai' => throw InvalidConfigurationException::forKey($reader->key('driver'), 'the "laravel_ai" driver is planned for version 0.3 and not available yet'),
+            'laravel_ai' => throw InvalidConfigurationException::forKey($reader->key('driver'), 'the "laravel_ai" driver is planned for version 0.4 and not available yet'),
             default => new LlmTranslationProvider($this->chatModels->fromArray($name, $entry)),
         };
     }
