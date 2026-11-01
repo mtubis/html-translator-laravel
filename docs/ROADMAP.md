@@ -27,4 +27,4 @@ Goal: `composer require`, set two env vars, `HtmlTranslation::translate($html, '
 
 ## Then
 - `html-translator-filament`: Filament v5 plugin — "Translate with AI" actions for rich-editor and translatable fields, a page with translation issues and token usage. Builds on 0.2 (jobs, events, Eloquent targets).
-- Follow core releases (1.0 → constraint `^1.0`), Laravel 14 in Q1 2027.
+- Follow core releases (constraint `^1.0` since core 1.0), Laravel 14 in Q1 2027.

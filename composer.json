@@ -24,7 +24,7 @@
         "illuminate/http": "^13.0",
         "illuminate/log": "^13.0",
         "illuminate/support": "^13.0",
-        "mtubis/html-translator": "^0.4",
+        "mtubis/html-translator": "^1.0",
         "symfony/cache": "^7.4 || ^8.0"
     },
     "require-dev": {
