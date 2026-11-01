@@ -159,9 +159,10 @@ Laravel HTTP → response mapping) without a network.
 
 ## 8. Relationship to the core
 
-- Version constraint follows the core's latest minor (`^0.4` now); while the core is 0.x, every core minor needs a
-  package release.
-- Friction found here (awkward constructors, missing hooks, array validation) is reported to the core **before** its
-  1.0 freeze. That feedback loop is one of the reasons to build this package now.
+- Version constraint is `^1.0`: the core is under its backward compatibility promise (core ADR-0018), so a core minor
+  needs no package release. Use a new core feature only after raising the lower bound (e.g. `^1.1`).
+- Friction found here (awkward constructors, missing hooks, array validation) is reported to the core as an issue
+  (skill `draft-core-issue`). Since its 1.0 freeze the core can only add in a minor, so a request names an additive
+  change or waits for 2.0.
 - For cross-repository work, the core source is readable in `vendor/mtubis/html-translator/` (never edited), or a
   local clone can be linked as a Composer path repository (CONTRIBUTING.md).

@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- Requires `mtubis/html-translator` ^1.0 (was ^0.4); see the core's
+  [UPGRADE-1.0.md](https://github.com/mtubis/html-translator/blob/main/UPGRADE-1.0.md) (#19). Two core changes reach
+  every application:
+  - Behaviour change: the `gemini`, `ollama` and `vllm` drivers send the answer schema (`json_schema`) instead of
+    `json_object`; an older server without structured outputs answers HTTP 400.
+  - A batch the model refuses is sent again in halves until the refused units are found (core ADR-0019), which costs
+    further calls; token stats also count failed calls that reported usage, so totals may come out higher.
+- Configuration errors quote offending values with the core's public `UntrustedText::quote()` instead of a copy of its
+  rules; the messages are unchanged (#19).
+
 ## [0.1.0] - 2026-10-14
 
 First release: translate HTML with the configured providers and profiles through the `HtmlTranslation` facade or
