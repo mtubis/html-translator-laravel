@@ -32,10 +32,14 @@ return [
     |
     | Several entries may use the same driver, e.g. a cheap and a strong model. Optional keys per driver:
     |
-    |   ollama, lm_studio  base_url              vllm  base_url, api_key
-    |   openai             json_mode             anthropic  api_version, default_max_output_tokens, extra_headers
+    |   ollama, lm_studio  base_url, json_mode   vllm  base_url, api_key, json_mode
+    |   openai, gemini     json_mode             anthropic  api_version, default_max_output_tokens, extra_headers
     |   openai_compatible  see the commented "together" example
     |   pseudo             corrupt_every (break every n-th unit), corrupt_retries — to test fallbacks and issues
+    |
+    | json_mode: none | json_object | json_schema | json_schema_only. Unset, the core's preset default applies
+    | (json_schema; json_schema_only for lm_studio). A server without structured outputs answers HTTP 400:
+    | use json_object for it (an older Ollama or vLLM).
     |
     | Unknown keys are reported as errors, with a suggestion for typos.
     */

@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `json_mode` for the `gemini`, `ollama`, `vllm` and `lm_studio` drivers, passed to the core preset; unset, the
+  preset's default applies. `json_object` brings back the 0.1 behaviour of `gemini`, `ollama` and `vllm` for a server without
+  structured outputs (#20).
+
 ### Changed
 - Requires `mtubis/html-translator` ^1.0 (was ^0.4); see the core's
   [UPGRADE-1.0.md](https://github.com/mtubis/html-translator/blob/main/UPGRADE-1.0.md) (#19). Two core changes reach

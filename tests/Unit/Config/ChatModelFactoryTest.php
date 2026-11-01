@@ -57,6 +57,13 @@ final class ChatModelFactoryTest extends TestCase
         yield 'vllm with key only' => ['vllm', ['driver' => 'vllm', 'model' => 'qwen-test', 'api_key' => self::KEY], OpenAiCompatibleConfig::vllm('qwen-test', apiKey: self::KEY)];
         yield 'lm_studio' => ['lm', ['driver' => 'lm_studio', 'model' => 'phi-test'], OpenAiCompatibleConfig::lmStudio('phi-test')];
         yield 'lm_studio with base url' => ['lm', ['driver' => 'lm_studio', 'model' => 'phi-test', 'base_url' => 'http://desk:1234/v1'], OpenAiCompatibleConfig::lmStudio('phi-test', 'http://desk:1234/v1')];
+        yield 'gemini with json mode' => ['gemini', ['driver' => 'gemini', 'api_key' => self::KEY, 'model' => 'gemini-test', 'json_mode' => 'json_object'], OpenAiCompatibleConfig::gemini(self::KEY, 'gemini-test', JsonMode::JsonObject)];
+        yield 'ollama with json mode' => ['ollama', ['driver' => 'ollama', 'model' => 'llama-test', 'json_mode' => 'json_object'], OpenAiCompatibleConfig::ollama('llama-test', jsonMode: JsonMode::JsonObject)];
+        yield 'ollama with base url and json mode' => ['local', ['driver' => 'ollama', 'model' => 'llama-test', 'base_url' => 'http://ollama:11434/v1', 'json_mode' => 'none'], OpenAiCompatibleConfig::ollama('llama-test', 'http://ollama:11434/v1', JsonMode::None)];
+        yield 'vllm with json mode' => ['vllm', ['driver' => 'vllm', 'model' => 'qwen-test', 'json_mode' => 'json_object'], OpenAiCompatibleConfig::vllm('qwen-test', jsonMode: JsonMode::JsonObject)];
+        yield 'vllm with everything' => ['vllm', ['driver' => 'vllm', 'model' => 'qwen-test', 'base_url' => 'http://gpu:8000/v1', 'api_key' => self::KEY, 'json_mode' => 'json_object'], OpenAiCompatibleConfig::vllm('qwen-test', 'http://gpu:8000/v1', self::KEY, JsonMode::JsonObject)];
+        yield 'lm_studio with json mode' => ['lm', ['driver' => 'lm_studio', 'model' => 'phi-test', 'json_mode' => 'none'], OpenAiCompatibleConfig::lmStudio('phi-test', jsonMode: JsonMode::None)];
+        yield 'null json mode' => ['ollama', ['driver' => 'ollama', 'model' => 'llama-test', 'json_mode' => null], OpenAiCompatibleConfig::ollama('llama-test')];
         yield 'openai_compatible' => ['together', ['driver' => 'openai_compatible', 'base_url' => 'https://api.together.test/v1', 'model' => 'llama-70b'], new OpenAiCompatibleConfig('together', 'https://api.together.test/v1', 'llama-70b')];
         yield 'openai_compatible with everything' => ['together', [
             'driver' => 'openai_compatible',
@@ -176,6 +183,7 @@ final class ChatModelFactoryTest extends TestCase
         yield 'key type' => [[...$openAi, 'api_key' => 12345678], 'api_key', 'expected a string or null, got int'];
         yield 'model type' => [[...$openAi, 'model' => ['m']], 'model', 'expected a string or null, got array'];
         yield 'json mode' => [[...$openAi, 'json_mode' => 'json'], 'json_mode', 'expected one of none, json_object, json_schema, json_schema_only, got "json"'];
+        yield 'preset json mode' => [['driver' => 'ollama', 'model' => 'm', 'json_mode' => 'json'], 'json_mode', 'expected one of none, json_object, json_schema, json_schema_only, got "json"'];
         yield 'effort' => [[...$anthropic, 'effort' => 'hihg'], 'effort', 'expected one of low, medium, high, xhigh, max, got "hihg"; did you mean "high"?'];
         yield 'refusal fallbacks' => [[...$anthropic, 'refusal_fallbacks' => 'yes'], 'refusal_fallbacks', 'expected a boolean, got "yes"'];
         yield 'betas' => [[...$anthropic, 'betas' => 'beta-one'], 'betas', 'expected a list of strings, got "beta-one"'];
@@ -213,6 +221,7 @@ final class ChatModelFactoryTest extends TestCase
         yield 'invalid header name' => [['driver' => 'openai_compatible', 'base_url' => 'https://x.test/v1', 'model' => 'm', 'extra_headers' => [self::HEADER_SECRET . ' x' => 'v']]];
         yield 'invalid beta' => [['driver' => 'anthropic', 'api_key' => self::KEY, 'model' => 'm', 'betas' => ['Beta One']]];
         yield 'ollama base url' => [['driver' => 'ollama', 'model' => 'm', 'base_url' => 'localhost:11434']];
+        yield 'vllm key with a line break' => [['driver' => 'vllm', 'model' => 'm', 'api_key' => self::KEY . "\n", 'json_mode' => 'json_object']];
     }
 
     /**
@@ -239,6 +248,7 @@ final class ChatModelFactoryTest extends TestCase
     {
         yield 'package validation' => [['driver' => 'openai', 'api_key' => self::KEY, 'model' => null]];
         yield 'core validation' => [['driver' => 'anthropic', 'api_key' => self::KEY, 'model' => 'm', 'base_url' => 'ftp://x.test']];
+        yield 'vllm core validation' => [['driver' => 'vllm', 'model' => 'm', 'api_key' => self::KEY, 'base_url' => 'ftp://x.test', 'json_mode' => 'json_object']];
         yield 'pseudo with a stray key' => [['driver' => 'pseudo', 'api_key' => self::KEY]];
     }
 
@@ -277,6 +287,17 @@ final class ChatModelFactoryTest extends TestCase
         }
 
         self::assertGreaterThan(0, $arguments, 'The trace recorded no arguments.');
+
+        // The core exception (kept as previous) has the core's frames, e.g. OpenAiCompatibleConfig::vllm().
+        foreach ($exception->getPrevious()?->getTrace() ?? [] as $frame) {
+            if (str_starts_with($frame['class'] ?? '', 'HtmlTranslator\\Laravel\\Tests\\')) {
+                continue;
+            }
+
+            foreach ($frame['args'] ?? [] as $argument) {
+                self::assertFalse(\is_string($argument) && str_contains($argument, self::KEY), 'The key is recorded in a core frame.');
+            }
+        }
     }
 
     #[Test]
