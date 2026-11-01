@@ -39,10 +39,10 @@ final readonly class ChatModelFactory
     /** Keys besides "driver", per driver. */
     private const array KEYS = [
         'openai' => ['api_key', 'model', 'json_mode'],
-        'gemini' => ['api_key', 'model'],
-        'ollama' => ['model', 'base_url'],
-        'vllm' => ['model', 'base_url', 'api_key'],
-        'lm_studio' => ['model', 'base_url'],
+        'gemini' => ['api_key', 'model', 'json_mode'],
+        'ollama' => ['model', 'base_url', 'json_mode'],
+        'vllm' => ['model', 'base_url', 'api_key', 'json_mode'],
+        'lm_studio' => ['model', 'base_url', 'json_mode'],
         'openai_compatible' => ['name', 'base_url', 'api_key', 'model', 'json_mode', 'max_tokens_field', 'extra_headers'],
         'anthropic' => ['api_key', 'model', 'effort', 'base_url', 'refusal_fallbacks', 'betas', 'extra_headers', 'api_version', 'default_max_output_tokens'],
     ];
@@ -139,39 +139,62 @@ final readonly class ChatModelFactory
     {
         $apiKey = $this->required($reader, 'gemini', 'api_key');
         $model = $this->required($reader, 'gemini', 'model');
+        $jsonMode = $this->presetJsonMode($reader);
 
-        return $reader->guardEntry(static fn(): OpenAiCompatibleConfig => OpenAiCompatibleConfig::gemini($apiKey, $model));
+        return $reader->guardEntry(static fn(): OpenAiCompatibleConfig => $jsonMode instanceof JsonMode
+            ? OpenAiCompatibleConfig::gemini($apiKey, $model, $jsonMode)
+            : OpenAiCompatibleConfig::gemini($apiKey, $model));
     }
 
     private function ollama(#[SensitiveParameter] ConfigReader $reader): OpenAiCompatibleConfig
     {
         $model = $this->required($reader, 'ollama', 'model');
-        $baseUrl = $reader->nullableString('base_url');
+        $options = $this->presetOptions($reader);
 
-        return $reader->guardEntry(static fn(): OpenAiCompatibleConfig => null === $baseUrl
-            ? OpenAiCompatibleConfig::ollama($model)
-            : OpenAiCompatibleConfig::ollama($model, $baseUrl));
+        return $reader->guardEntry(static fn(): OpenAiCompatibleConfig => OpenAiCompatibleConfig::ollama($model, ...$options));
     }
 
     private function vllm(#[SensitiveParameter] ConfigReader $reader): OpenAiCompatibleConfig
     {
         $model = $this->required($reader, 'vllm', 'model');
-        $baseUrl = $reader->nullableString('base_url');
-        $apiKey = $reader->secret('api_key');
+        $options = ['apiKey' => $reader->secret('api_key'), ...$this->presetOptions($reader)];
 
-        return $reader->guardEntry(static fn(): OpenAiCompatibleConfig => null === $baseUrl
-            ? OpenAiCompatibleConfig::vllm($model, apiKey: $apiKey)
-            : OpenAiCompatibleConfig::vllm($model, $baseUrl, $apiKey));
+        return $reader->guardEntry(static fn(): OpenAiCompatibleConfig => OpenAiCompatibleConfig::vllm($model, ...$options));
     }
 
     private function lmStudio(#[SensitiveParameter] ConfigReader $reader): OpenAiCompatibleConfig
     {
         $model = $this->required($reader, 'lm_studio', 'model');
-        $baseUrl = $reader->nullableString('base_url');
+        $options = $this->presetOptions($reader);
 
-        return $reader->guardEntry(static fn(): OpenAiCompatibleConfig => null === $baseUrl
-            ? OpenAiCompatibleConfig::lmStudio($model)
-            : OpenAiCompatibleConfig::lmStudio($model, $baseUrl));
+        return $reader->guardEntry(static fn(): OpenAiCompatibleConfig => OpenAiCompatibleConfig::lmStudio($model, ...$options));
+    }
+
+    /**
+     * Only the options that are set, passed by name: an unset one keeps the preset's own default, which the core
+     * chooses per server (e.g. json_schema for ollama, json_schema_only for lm_studio) and may change in a minor.
+     *
+     * @return array{baseUrl?: string, jsonMode?: JsonMode}
+     */
+    private function presetOptions(ConfigReader $reader): array
+    {
+        $options = [];
+        $baseUrl = $reader->nullableString('base_url');
+        if (null !== $baseUrl) {
+            $options['baseUrl'] = $baseUrl;
+        }
+
+        $jsonMode = $this->presetJsonMode($reader);
+        if ($jsonMode instanceof JsonMode) {
+            $options['jsonMode'] = $jsonMode;
+        }
+
+        return $options;
+    }
+
+    private function presetJsonMode(ConfigReader $reader): ?JsonMode
+    {
+        return $reader->has('json_mode') ? $reader->enum('json_mode', JsonMode::class) : null;
     }
 
     private function openAiCompatible(#[SensitiveParameter] ConfigReader $reader, string $name): OpenAiCompatibleConfig

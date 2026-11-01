@@ -101,6 +101,22 @@ final class ProviderDriversTest extends TestCase
         });
     }
 
+    /**
+     * Core 1.0 presets default to json_schema; json_mode lets an older server go back to json_object.
+     */
+    #[Test]
+    public function it_sends_the_json_mode_of_a_preset_entry(): void
+    {
+        $url = 'http://localhost:11434/v1/chat/completions';
+        Http::preventStrayRequests();
+        Http::fake([$url => static fn(Request $request): PromiseInterface => Factory::response(self::vendorAnswer('openai', self::translatedUnits($request)))]);
+
+        new HtmlTranslator($this->providers()->fromArray('ollama', ['driver' => 'ollama', 'model' => 'llama-test', 'json_mode' => 'json_object']))
+            ->translate('<p>Hello</p>', Locale::fromString('de'));
+
+        Http::assertSent(static fn(Request $request): bool => ['type' => 'json_object'] === ($request->data()['response_format'] ?? null));
+    }
+
     #[Test]
     public function it_translates_with_the_pseudo_driver_without_http(): void
     {

@@ -72,12 +72,16 @@ Each entry of `providers` in `config/html-translator.php` is a named provider; s
 |---|---|---|---|
 | `openai` | `api_key`, `model` | `json_mode` | `OPENAI_API_KEY`, `HTML_TRANSLATOR_OPENAI_MODEL` |
 | `anthropic` | `api_key`, `model` | `effort`, `base_url`, `refusal_fallbacks`, `betas`, `extra_headers`, `api_version`, `default_max_output_tokens` | `ANTHROPIC_API_KEY`, `HTML_TRANSLATOR_ANTHROPIC_MODEL`, `HTML_TRANSLATOR_ANTHROPIC_EFFORT`, `ANTHROPIC_BASE_URL` |
-| `gemini` | `api_key`, `model` | | `GEMINI_API_KEY`, `HTML_TRANSLATOR_GEMINI_MODEL` |
-| `ollama` | `model` | `base_url` | `HTML_TRANSLATOR_OLLAMA_MODEL`, `OLLAMA_BASE_URL` |
-| `vllm` | `model` | `base_url`, `api_key` | |
-| `lm_studio` | `model` | `base_url` | |
+| `gemini` | `api_key`, `model` | `json_mode` | `GEMINI_API_KEY`, `HTML_TRANSLATOR_GEMINI_MODEL` |
+| `ollama` | `model` | `base_url`, `json_mode` | `HTML_TRANSLATOR_OLLAMA_MODEL`, `OLLAMA_BASE_URL` |
+| `vllm` | `model` | `base_url`, `api_key`, `json_mode` | |
+| `lm_studio` | `model` | `base_url`, `json_mode` | |
 | `openai_compatible` | `base_url`, `model` | `name`, `api_key`, `json_mode`, `max_tokens_field`, `extra_headers` | see the commented `together` example |
 | `pseudo` | | `corrupt_every`, `corrupt_retries` | no network: pseudo-localization for development and tests |
+
+`json_mode` (`none`, `json_object`, `json_schema`, `json_schema_only`) defaults to the core preset's mode: `json_schema`
+for `openai`, `gemini`, `ollama` and `vllm` (since core 1.0), `json_schema_only` for `lm_studio`. An older Ollama or
+vLLM server without structured outputs answers HTTP 400; set `'json_mode' => 'json_object'` for it.
 
 The drivers map to the core's adapters and presets ([core providers guide](https://github.com/mtubis/html-translator/blob/main/docs/providers.md)).
 `laravel_ai` (providers from `config/ai.php`) is planned for 0.3. Unknown keys and wrong values fail with an
