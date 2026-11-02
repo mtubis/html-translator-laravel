@@ -4,10 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-02
+
+Runs on the core's 1.0 API freeze (`mtubis/html-translator` ^1.0) and keeps every OpenAI-compatible server usable
+after the core's new JSON mode defaults.
+
 ### Added
 - `json_mode` for the `gemini`, `ollama`, `vllm` and `lm_studio` drivers, passed to the core preset; unset, the
-  preset's default applies. `json_object` brings back the 0.1 behaviour of `gemini`, `ollama` and `vllm` for a server without
-  structured outputs (#20).
+  preset's default applies. `json_object` brings back the 0.1 behaviour of `gemini`, `ollama` and `vllm` for a server
+  without structured outputs (#20).
 
 ### Changed
 - Requires `mtubis/html-translator` ^1.0 (was ^0.4); see the core's
@@ -19,6 +24,8 @@ All notable changes to this project are documented here. The format follows [Kee
     further calls; token stats also count failed calls that reported usage, so totals may come out higher.
 - Configuration errors quote offending values with the core's public `UntrustedText::quote()` instead of a copy of its
   rules; the messages are unchanged (#19).
+- The `laravel_ai` driver is planned for 0.4 (was 0.3): 0.2 is the core 1.0 release, queues, events and Eloquent move
+  to 0.3 (#23).
 
 ## [0.1.0] - 2026-10-14
 
@@ -40,5 +47,6 @@ decisions in [ADR-0001–0008](docs/adr/).
 - An "Html Translator" section in `php artisan about`: versions, default provider, driver, model, cache store and log channel.
 - README with tested examples (every runnable snippet runs in the test suite), Laravel Boost guidelines and integration tests against the real APIs (`composer test:integration`).
 
-[Unreleased]: https://github.com/mtubis/html-translator-laravel/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/mtubis/html-translator-laravel/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/mtubis/html-translator-laravel/releases/tag/v0.2.0
 [0.1.0]: https://github.com/mtubis/html-translator-laravel/releases/tag/v0.1.0
