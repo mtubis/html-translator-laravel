@@ -35,7 +35,7 @@
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-phpunit": "^2.1",
         "phpstan/phpstan-strict-rules": "^2.1",
-        "phpunit/phpunit": "^13.4",
+        "phpunit/phpunit": "^13.4.4",
         "rector/rector": "^2.7"
     },
     "autoload": {
@@ -56,6 +56,10 @@
         }
     },
     "config": {
+        "preferred-install": {
+            "mtubis/html-translator": "source",
+            "*": "dist"
+        },
         "sort-packages": true,
         "allow-plugins": {
             "infection/extension-installer": true,

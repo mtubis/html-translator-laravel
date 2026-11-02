@@ -22,7 +22,7 @@
   package needs a change there, it is an issue in the core repository ([ADR-0002](adr/0002-core-public-api-only.md)).
 - No UI (that is the Filament plugin), no HTTP routes or controllers.
 - No storage of translations of its own. Eloquent integration writes into the application's own columns, e.g. through
-  `spatie/laravel-translatable` (0.2).
+  `spatie/laravel-translatable` (0.3).
 - No support for Laravel versions without bug fixes ([ADR-0003](adr/0003-supported-versions.md)).
 
 ## 3. Ubiquitous language
@@ -134,7 +134,7 @@ src/
   Console/                     TranslateCommand
   Testing/                     HtmlTranslationFake, RecordedTranslation
   Exceptions/                  InvalidConfigurationException, NetworkException
-  (0.2) Jobs/, Events/, Eloquent/
+  (0.3) Jobs/, Events/, Eloquent/
 resources/boost/guidelines/core.blade.php   AI guidelines shipped to applications using Laravel Boost
 tests/
   TestCase.php (Orchestra Testbench)

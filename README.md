@@ -84,7 +84,7 @@ for `openai`, `gemini`, `ollama` and `vllm` (since core 1.0), `json_schema_only`
 vLLM server without structured outputs answers HTTP 400; set `'json_mode' => 'json_object'` for it.
 
 The drivers map to the core's adapters and presets ([core providers guide](https://github.com/mtubis/html-translator/blob/main/docs/providers.md)).
-`laravel_ai` (providers from `config/ai.php`) is planned for 0.3. Unknown keys and wrong values fail with an
+`laravel_ai` (providers from `config/ai.php`) is planned for 0.4. Unknown keys and wrong values fail with an
 `InvalidConfigurationException` that names the full key, e.g.
 `html-translator.providers.openai.api_key: is required; the shipped configuration reads it from OPENAI_API_KEY`.
 
