@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-14
+
+Supply-chain hardening; no change to the package's code or public API.
+
+### Security
+- A security policy (`SECURITY.md`): report vulnerabilities privately through GitHub security advisories.
+- CI actions are pinned to commit SHAs, and Dependabot keeps them and the Composer dependencies up to date, with a
+  cooldown before a new release is proposed.
+
 ## [0.2.0] - 2026-11-02
 
 Runs on the core's 1.0 API freeze (`mtubis/html-translator` ^1.0) and keeps every OpenAI-compatible server usable
@@ -47,6 +56,7 @@ decisions in [ADR-0001–0008](docs/adr/).
 - An "Html Translator" section in `php artisan about`: versions, default provider, driver, model, cache store and log channel.
 - README with tested examples (every runnable snippet runs in the test suite), Laravel Boost guidelines and integration tests against the real APIs (`composer test:integration`).
 
-[Unreleased]: https://github.com/mtubis/html-translator-laravel/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/mtubis/html-translator-laravel/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/mtubis/html-translator-laravel/releases/tag/v0.2.1
 [0.2.0]: https://github.com/mtubis/html-translator-laravel/releases/tag/v0.2.0
 [0.1.0]: https://github.com/mtubis/html-translator-laravel/releases/tag/v0.1.0
